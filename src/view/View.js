@@ -1,4 +1,4 @@
-class View {
+export class View {
   constructor(canvas, ctx) {
     this.canvas = canvas;
     this.ctx = ctx;
@@ -33,5 +33,18 @@ class View {
     const modalMessage = document.querySelector('.modal-message');
     modal.style.display = 'flex';
     modalMessage.textContent = message;
+  }
+
+  highlightSelectedCell(selectedCell) {
+    const x = (selectedCell % 3) * this.cellSize;
+    const y = Math.floor(selectedCell / 3) * this.cellSize;
+
+    this.ctx.strokeStyle = 'red';
+    this.ctx.lineWidth = 3;
+    this.ctx.strokeRect(x, y, this.cellSize, this.cellSize);
+  }
+
+  getCellIndexFromCoordinates(x, y) {
+    return Math.floor(x / this.cellSize) + Math.floor(y / this.cellSize) * 3;
   }
 }

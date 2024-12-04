@@ -1,16 +1,22 @@
-class GameModel {
+import { players } from '../constants/constants.js';
+
+export class GameModel {
   constructor() {
     this.board = Array(9).fill(null);
     this.currentPlayer = 'X';
     this.winner = null;
     this.isGameOver = false;
+    this.players = players;
   }
 
   makeMove(index) {
     if (this.board[index] || this.isGameOver) return;
     this.board[index] = this.currentPlayer;
     this.checkWinner();
-    this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+    this.currentPlayer =
+      this.currentPlayer === this.players.human
+        ? this.players.computer
+        : this.players.human;
   }
 
   checkWinner() {
@@ -45,7 +51,7 @@ class GameModel {
 
   reset() {
     this.board = Array(9).fill(null);
-    this.currentPlayer = 'X';
+    this.currentPlayer = this.players.human;
     this.winner = null;
     this.isGameOver = false;
   }

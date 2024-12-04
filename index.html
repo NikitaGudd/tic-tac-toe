@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Тік-Так-Тое</title>
+    <title>Tic Tac Toe</title>
     <link rel="stylesheet" href="src/styles/index.css" />
   </head>
   <body>
@@ -18,18 +18,13 @@
     </main>
     <div id="modal" class="modal">
       <div class="modal-content">
-        <p class="modal-message">Гра закінчена. Хочеш ще раз?</p>
-        <button id="restartBtn">Перезапустити гру</button>
+        <p class="modal-message">Розпочати нову гру?</p>
+        <button id="startBtn">Старт</button>
       </div>
     </div>
     <div id="ad-container">
     </div>
-    <script src="src/app.js"></script>
-    <script src="src/controller/GameController.js"></script>
-    <script src="src/model/GameModel.js"></script>
-    <script src="src/view/View.js"></script>
-    <script src="src/utils/AIPlayer.js"></script>
-    <script src="src/utils/AdManager.js"></script>
-    <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+    <script type="module" src="src/app.js"></script>
+    <script async src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
   </body>
 </html>

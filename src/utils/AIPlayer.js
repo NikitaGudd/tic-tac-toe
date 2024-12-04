@@ -1,7 +1,10 @@
-class AI {
+import { players } from '../constants/constants.js';
+
+export class AI {
   constructor(model, maxDepth = 3) {
     this.model = model;
     this.maxDepth = maxDepth;
+    this.players = players;
   }
 
   makeMove() {
@@ -12,45 +15,44 @@ class AI {
       Infinity,
       0
     );
-    this.model.makeMove(bestMove.index);
+    if (bestMove?.index !== undefined) {
+      this.model.makeMove(bestMove.index);
+    }
   }
 
   minimax(board, currentPlayer, alpha, beta, depth) {
-    const availableMoves = this.getAvailableMoves(board);
-
     if (depth >= this.maxDepth || this.isGameOver(board)) {
       return { score: this.evaluateBoard(board, currentPlayer) };
     }
 
+    const isMaximizing = currentPlayer === this.players.computer;
+    let bestScore = isMaximizing ? -Infinity : Infinity;
     let bestMove = null;
 
-    if (currentPlayer === 'O') {
-      let bestScore = -Infinity;
-      for (const move of availableMoves) {
-        const newBoard = this.makeMoveOnBoard(board, move, 'O');
-        const result = this.minimax(newBoard, 'X', alpha, beta, depth + 1);
-        if (result.score > bestScore) {
-          bestScore = result.score;
-          bestMove = { index: move, score: bestScore };
-        }
+    for (const move of this.getAvailableMoves(board)) {
+      const newBoard = this.simulateMove(board, move, currentPlayer);
+      const result = this.minimax(
+        newBoard,
+        this.opponent(currentPlayer),
+        alpha,
+        beta,
+        depth + 1
+      );
+
+      if (isMaximizing && result.score > bestScore) {
+        bestScore = result.score;
+        bestMove = { index: move, score: bestScore };
         alpha = Math.max(alpha, bestScore);
-        if (beta <= alpha) break;
-      }
-    } else {
-      let bestScore = Infinity;
-      for (const move of availableMoves) {
-        const newBoard = this.makeMoveOnBoard(board, move, 'X');
-        const result = this.minimax(newBoard, 'O', alpha, beta, depth + 1);
-        if (result.score < bestScore) {
-          bestScore = result.score;
-          bestMove = { index: move, score: bestScore };
-        }
+      } else if (!isMaximizing && result.score < bestScore) {
+        bestScore = result.score;
+        bestMove = { index: move, score: bestScore };
         beta = Math.min(beta, bestScore);
-        if (beta <= alpha) break;
       }
+
+      if (beta <= alpha) break;
     }
 
-    return bestMove;
+    return bestMove || { score: bestScore };
   }
 
   evaluateBoard(board, currentPlayer) {
@@ -61,7 +63,9 @@ class AI {
   }
 
   opponent(player) {
-    return player === 'X' ? 'O' : 'X';
+    return player === this.players.human
+      ? this.players.computer
+      : this.players.human;
   }
 
   isGameOver(board) {
@@ -83,8 +87,7 @@ class AI {
       [2, 4, 6],
     ];
 
-    for (let pattern of winPatterns) {
-      const [a, b, c] = pattern;
+    for (const [a, b, c] of winPatterns) {
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
         return board[a];
       }
@@ -99,7 +102,7 @@ class AI {
       .filter((index) => index !== null);
   }
 
-  makeMoveOnBoard(board, move, player) {
+  simulateMove(board, move, player) {
     const newBoard = [...board];
     newBoard[move] = player;
     return newBoard;

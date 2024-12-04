@@ -1,4 +1,4 @@
-class AdManager {
+export class AdManager {
   constructor(canvas, ctx, onAdComplete) {
     this.canvas = canvas;
     this.ctx = ctx;
@@ -7,23 +7,26 @@ class AdManager {
     this.adDisplayContainer = null;
     this.adsLoader = null;
     this.adsManager = null;
+    this.onAdCompleteCallback = null;
 
     this.initializeAdContainer();
     this.initializeAdsLoader();
   }
 
   initializeAdContainer() {
-    try {
-      const adContainerElement = document.getElementById('ad-container');
-      adContainerElement.style.display = 'flex';
-      if (!adContainerElement) {
-        throw new Error('Ad container element not found');
-      }
+    const adContainerElement = document.getElementById('ad-container');
 
+    if (!adContainerElement) {
+      console.error('Ad container element not found');
+      return;
+    }
+
+    adContainerElement.style.display = 'flex';
+
+    try {
       this.adDisplayContainer = new google.ima.AdDisplayContainer(
         adContainerElement
       );
-
       this.adDisplayContainer.initialize();
     } catch (e) {
       console.error('Error initializing AdDisplayContainer:', e);
@@ -39,7 +42,6 @@ class AdManager {
         this.onAdsManagerLoaded.bind(this),
         false
       );
-
       this.adsLoader.addEventListener(
         google.ima.AdErrorEvent.Type.AD_ERROR,
         this.onAdError.bind(this),
@@ -50,7 +52,22 @@ class AdManager {
     }
   }
 
-  loadAd() {
+  loadAd(onAdCompleteCallback) {
+    this.initializeAdContainer();
+    this.initializeAdsLoader();
+
+    this.onAdCompleteCallback = onAdCompleteCallback;
+
+    const adsRequest = this.createAdsRequest();
+    try {
+      this.adsLoader.requestAds(adsRequest);
+    } catch (e) {
+      console.error('Error requesting ads:', e);
+      this.handleAdComplete();
+    }
+  }
+
+  createAdsRequest() {
     const adsRequest = new google.ima.AdsRequest();
     adsRequest.adTagUrl =
       'https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/vmap_ad_samples&sz=640x480&cust_params=sample_ar%3Dpreonly&ciu_szs=300x250%2C728x90&gdfp_req=1&ad_rule=1&output=vmap&unviewed_position_start=1&env=vp&impl=s&correlator=';
@@ -58,12 +75,7 @@ class AdManager {
     adsRequest.linearAdSlotHeight = this.canvas.height;
     adsRequest.nonLinearAdSlotWidth = this.canvas.width;
     adsRequest.nonLinearAdSlotHeight = this.canvas.height;
-
-    try {
-      this.adsLoader.requestAds(adsRequest);
-    } catch (e) {
-      console.error('Error requesting ads:', e);
-    }
+    return adsRequest;
   }
 
   onAdsManagerLoaded(event) {
@@ -71,7 +83,9 @@ class AdManager {
       this.adsManager = event.getAdsManager();
 
       if (!this.adsManager) {
-        throw new Error('AdsManager is not available');
+        console.error('AdsManager is not available');
+        this.handleAdComplete();
+        return;
       }
 
       this.adsManager.addEventListener(
@@ -79,7 +93,6 @@ class AdManager {
         this.onAdCompleteHandler.bind(this),
         false
       );
-
       this.adsManager.addEventListener(
         google.ima.AdErrorEvent.Type.AD_ERROR,
         this.onAdError.bind(this),
@@ -94,21 +107,37 @@ class AdManager {
       this.adsManager.start();
     } catch (e) {
       console.error('Error initializing AdsManager:', e);
-      this.onAdComplete();
+      this.handleAdComplete();
     }
+  }
+
+  onAdCompleteHandler() {
+    this.hideAdContainer();
+    this.handleAdComplete();
   }
 
   onAdError(event) {
     console.error('Ad error:', event.getError());
-    this.onAdComplete();
+    this.hideAdContainer();
+    this.handleAdComplete();
   }
 
-  onAdCompleteHandler() {
-    console.log('Ad finished');
-    if (typeof this.onAdComplete === 'function') {
-      const adContainerElement = document.getElementById('ad-container');
+  handleAdComplete() {
+    if (typeof this.onAdCompleteCallback === 'function') {
+      this.onAdCompleteCallback();
+    }
+    this.resetAdManagerState();
+  }
+
+  resetAdManagerState() {
+    this.adsManager = null;
+    this.onAdCompleteCallback = null;
+  }
+
+  hideAdContainer() {
+    const adContainerElement = document.getElementById('ad-container');
+    if (adContainerElement) {
       adContainerElement.style.display = 'none';
-      this.onAdComplete();
     }
   }
 }
