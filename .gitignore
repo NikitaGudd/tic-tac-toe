@@ -1,0 +1,58 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs/
+*.log
+logs/**/*.log
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Build Output
+dist/
+build/
+out/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary Files
+*.tmp
+*.temp
+
+# Compiled Code
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Dependencies
+package-lock.json
+yarn.lock
+
+# Test Coverage
+coverage/
+
+# Static Analysis
+.nyc_output/
+pmd-bin/
+
+# Others
+!.gitkeep
