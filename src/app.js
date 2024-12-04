@@ -4,6 +4,7 @@ import { GameModel } from './model/GameModel.js';
 import { AdManager } from './utils/AdManager.js';
 import { AI } from './utils/AIPlayer.js';
 import { View } from './view/View.js';
+import './styles/index.css';
 
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('gameCanvas');
